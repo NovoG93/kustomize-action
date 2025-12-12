@@ -1,0 +1,28 @@
+name: Integration Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    name: Test Action Execution
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Kustomize Action
+        uses: ./
+        id: kustomize
+        with:
+          working-directory: "tests/integration"
+          build-all: "false"
+          output-dir: "kustomize-builds"
+
+      - name: Verify Output
+        run: |
+          echo "Manifest count: ${{ steps.kustomize.outputs.manifest-count }}"
+          echo "Success count: ${{ steps.kustomize.outputs.success-count }}"
+          echo "Fail count: ${{ steps.kustomize.outputs.fail-count }}"
