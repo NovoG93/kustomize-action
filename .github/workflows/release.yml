@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin, windows]
+        goarch: [amd64, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: make build
+
+      - name: Prepare Artifact
+        run: |
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            mv action/action.exe action-${{ matrix.goos }}-${{ matrix.goarch }}.exe
+          else
+            mv action/action action-${{ matrix.goos }}-${{ matrix.goarch }}
+          fi
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: action-${{ matrix.goos }}-${{ matrix.goarch }}*

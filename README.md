@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/NovoG93/kusotmize-action/graph/badge.svg)](https://codecov.io/gh/NovoG93/kusotmize-action)
+
 # kustomize-action
 
 A GitHub Action designed to automatically detect and build "root" Kustomize configurations within a repository.
@@ -178,5 +180,25 @@ cd <path-to-repo-with-manifests>
 KUSTOMIZE_VERSION="v5.6.1" BUILD_ALL="true" FAIL_ON_ERROR="true" FAIL_FAST="true" ./action
 ```
 
-</details\>
+### 3. Testing
+
+Run the test suite:
+
+```bash
+make test
+```
+
+Run tests with coverage reporting:
+
+```bash
+make coverage
+```
+
+Clean up build artifacts and coverage files:
+
+```bash
+make clean
+```
+
+</details>
 

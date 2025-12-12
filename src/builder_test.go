@@ -71,7 +71,7 @@ func TestBuildKustomizations(t *testing.T) {
 	}
 
 	// Execute
-	summary := buildKustomizations(roots, conf, runner)
+	summary := buildKustomizations(roots, conf, "kustomize", runner)
 
 	// Verify
 	if summary.Success != 2 {
@@ -121,7 +121,7 @@ func TestBuildKustomization_ExplicitDirBuilds(t *testing.T) {
 		t.Fatalf("Failed to create output dir: %v", err)
 	}
 
-	logMsg, err := buildKustomization(context.Background(), appDir, outDir, "LoadRestrictionsNone", false, runner)
+	logMsg, err := buildKustomization(context.Background(), appDir, outDir, "LoadRestrictionsNone", false, "kustomize", runner)
 	if err != nil {
 		t.Fatalf("Expected build to succeed, got error: %v (log=%s)", err, logMsg)
 	}
@@ -150,7 +150,7 @@ func TestBuildKustomization_FailureWritesErrorFile(t *testing.T) {
 		t.Fatalf("Failed to create output dir: %v", err)
 	}
 
-	logMsg, err := buildKustomization(context.Background(), appDir, outDir, "LoadRestrictionsNone", false, runner)
+	logMsg, err := buildKustomization(context.Background(), appDir, outDir, "LoadRestrictionsNone", false, "kustomize", runner)
 	if err == nil {
 		t.Fatalf("Expected error, got nil (log=%s)", logMsg)
 	}
@@ -192,7 +192,7 @@ func TestBuildKustomization_CanceledReturnsContextCanceled(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	_, err := buildKustomization(ctx, appDir, outDir, "LoadRestrictionsNone", false, runner)
+	_, err := buildKustomization(ctx, appDir, outDir, "LoadRestrictionsNone", false, "kustomize", runner)
 	if !errors.Is(err, context.Canceled) {
 		t.Fatalf("Expected context.Canceled, got %v", err)
 	}
@@ -271,7 +271,7 @@ func TestBuildKustomizations_FailFastCancelsOthers_NoOutputsForCanceled(t *testi
 		return ctx.Err()
 	}
 
-	summary := buildKustomizations(roots, conf, runner)
+	summary := buildKustomizations(roots, conf, "kustomize", runner)
 	if summary.Failed != 1 {
 		t.Fatalf("Expected 1 failed, got %d", summary.Failed)
 	}

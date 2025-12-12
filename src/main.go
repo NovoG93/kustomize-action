@@ -18,7 +18,8 @@ func main() {
 	config := LoadConfig()
 
 	// Ensure kustomize present (download per version)
-	if err := ensureKustomize(config.KustomizeVersion, config.KustomizeSHA256); err != nil {
+	kustomizePath, err := ensureKustomize(config.KustomizeVersion, config.KustomizeSHA256)
+	if err != nil {
 		fail("failed to install kustomize: %v", err)
 	}
 
@@ -65,7 +66,7 @@ func main() {
 		log.Printf("🧮 changed-only: %d roots selected from %d discovered.", len(filtered), len(repoRoots))
 		repoRoots = filtered
 	}
-	summary := BuildKustomizations(repoRoots, config)
+	summary := BuildKustomizations(repoRoots, config, kustomizePath)
 
 	// Write summary
 	sumBytes, _ := json.MarshalIndent(summary, "", "  ")

@@ -32,11 +32,11 @@ type Summary struct {
 	CanceledRoots []string `json:"canceled_roots"`
 }
 
-func BuildKustomizations(roots []string, conf Config) Summary {
-	return buildKustomizations(roots, conf, defaultRunCommand)
+func BuildKustomizations(roots []string, conf Config, kustomizePath string) Summary {
+	return buildKustomizations(roots, conf, kustomizePath, defaultRunCommand)
 }
 
-func buildKustomizations(roots []string, conf Config, runner runCommandFunc) Summary {
+func buildKustomizations(roots []string, conf Config, kustomizePath string, runner runCommandFunc) Summary {
 	if runner == nil {
 		runner = defaultRunCommand
 	}
@@ -75,7 +75,7 @@ func buildKustomizations(roots []string, conf Config, runner runCommandFunc) Sum
 				return
 			}
 
-			logMsg, err := buildKustomization(ctx, d, conf.OutputDir, conf.LoadRestrictor, conf.EnableHelm, runner)
+			logMsg, err := buildKustomization(ctx, d, conf.OutputDir, conf.LoadRestrictor, conf.EnableHelm, kustomizePath, runner)
 
 			// Critical section for updating summary and printing logs
 			mu.Lock()
@@ -113,11 +113,11 @@ func buildKustomizations(roots []string, conf Config, runner runCommandFunc) Sum
 	return summary
 }
 
-func BuildKustomization(ctx context.Context, dir, outputDir, loadRestrictor string, enableHelm bool) (string, error) {
-	return buildKustomization(ctx, dir, outputDir, loadRestrictor, enableHelm, defaultRunCommand)
+func BuildKustomization(ctx context.Context, dir, outputDir, loadRestrictor string, enableHelm bool, kustomizePath string) (string, error) {
+	return buildKustomization(ctx, dir, outputDir, loadRestrictor, enableHelm, kustomizePath, defaultRunCommand)
 }
 
-func buildKustomization(ctx context.Context, dir, outputDir, loadRestrictor string, enableHelm bool, runner runCommandFunc) (string, error) {
+func buildKustomization(ctx context.Context, dir, outputDir, loadRestrictor string, enableHelm bool, kustomizePath string, runner runCommandFunc) (string, error) {
 	if runner == nil {
 		runner = defaultRunCommand
 	}
@@ -149,7 +149,7 @@ func buildKustomization(ctx context.Context, dir, outputDir, loadRestrictor stri
 
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
-	if err := runner(ctx, "kustomize", args, stdout, stderr); err != nil {
+	if err := runner(ctx, kustomizePath, args, stdout, stderr); err != nil {
 		if errors.Is(ctx.Err(), context.Canceled) {
 			return fmt.Sprintf("⏭️ Canceled: %s", dir), context.Canceled
 		}
@@ -163,7 +163,7 @@ func buildKustomization(ctx context.Context, dir, outputDir, loadRestrictor stri
 		}
 		_ = os.WriteFile(filepath.Join(outputDir, errOut), stderr.Bytes(), 0o644)
 
-		return fmt.Sprintf("❌ Failed: %s\n%s", dir, tail(stderr.String(), 20)), fmt.Errorf("build failed")
+		return fmt.Sprintf("❌ Failed: %s\n%s\nError: %v", dir, tail(stderr.String(), 20), err), fmt.Errorf("build failed")
 	}
 
 	if err := os.WriteFile(outPath, stdout.Bytes(), 0o644); err != nil {
