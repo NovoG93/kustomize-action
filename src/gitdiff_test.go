@@ -169,7 +169,6 @@ func TestGetChangedFilesLastCommit_ExcludesMultipleDirectories(t *testing.T) {
 	// Base commit
 	mustWriteFile(t, filepath.Join(repoDir, "src/main.go"), "package main\n")
 	mustWriteFile(t, filepath.Join(repoDir, "vendor/dep.go"), "package dep\n")
-	mustWriteFile(t, filepath.Join(repoDir, ".git/config"), "config\n")
 	mustWriteFile(t, filepath.Join(repoDir, "build/output.o"), "binary\n")
 	runGit(t, repoDir, "add", ".")
 	runGit(t, repoDir, "commit", "-m", "base")
