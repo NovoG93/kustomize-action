@@ -8,6 +8,10 @@ import (
 )
 
 func getChangedFilesLastCommit(startDir string) ([]string, error) {
+	return getChangedFilesLastCommitWithExclusions(startDir, []string{})
+}
+
+func getChangedFilesLastCommitWithExclusions(startDir string, exclusions []string) ([]string, error) {
 	repoRoot, err := gitRepoRoot(startDir)
 	if err != nil {
 		return nil, err
@@ -35,11 +39,29 @@ func getChangedFilesLastCommit(startDir string) ([]string, error) {
 			continue
 		}
 		if !seen[p] {
-			seen[p] = true
-			paths = append(paths, p)
+			// Check if file is excluded
+			if !isPathExcluded(p, exclusions) {
+				seen[p] = true
+				paths = append(paths, p)
+			}
 		}
 	}
 	return paths, nil
+}
+
+// isPathExcluded checks if a path should be excluded based on the exclusions list.
+// Exclusions match prefixes: "vendor" excludes "vendor/lib.go" and "vendor/dep/lib.go"
+func isPathExcluded(path string, exclusions []string) bool {
+	for _, excl := range exclusions {
+		// Normalize exclusion path (remove trailing slashes)
+		excl = strings.TrimSuffix(excl, "/")
+
+		// Check exact match or prefix match with directory separator
+		if path == excl || strings.HasPrefix(path, excl+"/") {
+			return true
+		}
+	}
+	return false
 }
 
 func gitRepoRoot(startDir string) (string, error) {

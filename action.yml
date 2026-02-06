@@ -46,6 +46,10 @@ inputs:
     description: "Build only kustomization roots affected by changes in the last commit (default: true)"
     required: false
     default: "true"
+  ignore-dirs:
+    description: "Comma-separated list of directory names to ignore when searching for kustomization files (e.g., 'vendor,third_party')"
+    required: false
+    default: ""
 
 outputs:
   artifact-name:

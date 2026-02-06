@@ -16,6 +16,7 @@ type Config struct {
 	ChangedOnly      bool
 	FailOnError      bool
 	FailFast         bool
+	IgnoreDirs       []string
 }
 
 func LoadConfig() Config {
@@ -30,6 +31,7 @@ func LoadConfig() Config {
 		ChangedOnly:      strings.ToLower(getInput("changed-only", "true")) == "true",
 		FailOnError:      strings.ToLower(getInput("fail-on-error", "false")) == "true",
 		FailFast:         strings.ToLower(getInput("fail-fast", "false")) == "true",
+		IgnoreDirs:       strings.Split(getInput("ignore-dirs", ""), ","),
 	}
 }
 

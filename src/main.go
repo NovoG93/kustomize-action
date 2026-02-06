@@ -49,6 +49,7 @@ func Run(config Config, installer *KustomizeInstaller, builder KustomizeBuilder)
 	var roots []string
 
 	excludedScanDirs := []string{".git", config.OutputDir}
+	excludedScanDirs = append(excludedScanDirs, config.IgnoreDirs...)
 
 	// Collect kustomization.yaml files
 	if config.BuildAll {
